@@ -20,7 +20,8 @@ def upload_file(request):
             file_instance = form.save(commit=False)
             file_instance.user = request.user
             file_instance.save()
-            return redirect('file_list')
+            files = UploadedFile.objects.filter(user=request.user)
+            return render(request, 'files/file_list.html', {'done': 'File Uploaded successfully!', 'files': files})
     else:
         form = FileUploadForm()
     return render(request, 'files/upload_file.html', {'form': form})
@@ -42,5 +43,7 @@ def delete_file(request, file_id):
     if storage.exists(file_path):
         storage.delete(file_path)
     file_instance.delete()
-
-    return redirect('file_list')
+    
+    
+    files = UploadedFile.objects.filter(user=request.user)
+    return render(request, 'files/file_list.html', {'delete_success': 'File deleted successfully!', 'files': files})

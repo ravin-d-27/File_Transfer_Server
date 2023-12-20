@@ -1,1 +1,17 @@
-Home Page
+{% extends "base.html" %}
+{% block content %}
+
+<div class="px-4 py-5 my-5 text-center">
+    <br><br><br><br>
+    <h1 class="display-5 fw-bold">Welcome to RMLD File Server</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">You can upload your files over cloud and this website stores the uploaded files on Amazon S3 Buckets. You can access download those files anywhere in the Internet. If you don't want it, then delete the file, as simple as that!</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a type="button" class="btn btn-primary btn-lg px-4 gap-3" href='{% url "files:upload_file" %}'>Upload my Files</a>
+        <a type="button" class="btn btn-outline-secondary btn-lg px-4" href='{% url 'files:file_list' %}'>View My Files</a>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}

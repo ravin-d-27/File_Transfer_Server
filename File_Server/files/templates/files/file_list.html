@@ -1,18 +1,57 @@
 <!-- files/templates/files/file_list.html -->
 
 {% extends 'base.html' %}
-
 {% block content %}
-  <h2>File List</h2>
-  <ul>
-    {% for file in files %}
-      <li>
-        {{ file.file.name }} - {{ file.uploaded_at }}
-        <span style="float: right;">Uploaded by: {{ file.user.username }}</span>
-        <a href="{% url 'download_file' file_id=file.id %}">Download</a>
-        <a href="{% url 'delete_file' file_id=file.id %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
-  <a href="{% url 'upload_file' %}">Upload a File</a>
+
+<div class='container'>
+  <br><br>
+<div class='container'>
+
+  {% if delete_success %}
+  <div class="container alert alert-success" id="alert-container" role="alert">
+    {{ delete_success }}
+  </div>
+  {% endif %}
+
+  {% if done %}
+  <div class="container alert alert-success" id="alert-container" role="alert">
+    {{ done }}
+  </div>
+  {% endif %}
+  
+    
+<h1>Your Files and Documents</h1>
+<br>
+<div class="row row-cols-1 row-cols-md-3 mb-3 text-center" >
+  {% for file in files %}
+  <div class="col">
+    <div class="card mb-4 rounded-3 shadow-sm">
+      <div class="card-header py-3">
+        <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mt-3 mb-4">
+          <li><b>Uploaded at: </b>{{ file.uploaded_at }}</li>
+          <li><b>Uploaded by: </b>{{ file.user.username }}</li>
+        </ul>
+      
+        <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success">Download File</a>
+        <a href="{% url 'files:delete_file' file_id=file.id %}" class="btn btn-danger">Delete File</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+</div>
+</div>
+
+<script>
+  setTimeout(function() {
+    document.getElementById('alert-container').style.display = 'none';
+  }, 4000);
+</script>
+
+
+
 {% endblock %}
