@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<div class="d-flex flex-column auth justify-content-center">
+  <div class="center text-center">
+  </div>
+
+  <div class="auth-form mt-3">
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+    {% endif %}
+    {% if not user.is_authenticated %}
+    <h3 class="text-center">Log in to File Server</h3>
+    <br>
+    <div class="containers">
+      <div class="box" align="center">
+
+        <form method="POST" action="{% url 'login' %}">
+          <br>
+          {% csrf_token %}
+          <div class="mb-3" align="center">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" required>
+          </div>
+          <div class="mb-3" align="center">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" id="password" required>
+          </div>
+          <div align="center">
+            <button class="btn btn-primary" type="submit">Log in</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  {% else %}
+  
+  <br>
+  <div class='container'>
+      <div class="alert alert-primary container" role="alert" align='center'>
+          <p>You have already Logged In. Please Continue to Vote!</p>
+          <a href="{% url 'polls:index' %}" class="btn btn-success">Vote Now!</a>
+      </div>
+  </div>
+  
+  {% endif %}
+
+</div>
+{% endblock %}

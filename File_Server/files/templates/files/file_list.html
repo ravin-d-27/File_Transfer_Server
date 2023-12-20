@@ -9,6 +9,8 @@
       <li>
         {{ file.file.name }} - {{ file.uploaded_at }}
         <span style="float: right;">Uploaded by: {{ file.user.username }}</span>
+        <a href="{% url 'download_file' file_id=file.id %}">Download</a>
+        <a href="{% url 'delete_file' file_id=file.id %}">Delete</a>
       </li>
     {% endfor %}
   </ul>
