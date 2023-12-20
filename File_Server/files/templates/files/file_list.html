@@ -1,0 +1,16 @@
+<!-- files/templates/files/file_list.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>File List</h2>
+  <ul>
+    {% for file in files %}
+      <li>
+        {{ file.file.name }} - {{ file.uploaded_at }}
+        <span style="float: right;">Uploaded by: {{ file.user.username }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'upload_file' %}">Upload a File</a>
+{% endblock %}
