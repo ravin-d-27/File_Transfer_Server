@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import UploadedFile
 from .forms import FileUploadForm
+from storages.backends.s3boto3 import S3Boto3Storage
 import os
 
 @login_required
@@ -37,10 +38,14 @@ def download_file(request, file_id):
 def delete_file(request, file_id):
     file_instance = get_object_or_404(UploadedFile, id=file_id)
 
-    file_path = file_instance.file.path
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    # Delete the file from the AWS S3 storage
+    storage = S3Boto3Storage()
+    file_path = file_instance.file.name
 
+    if storage.exists(file_path):
+        storage.delete(file_path)
+
+    # Delete the UploadedFile instance from the database
     file_instance.delete()
 
     return redirect('file_list')
