@@ -3,36 +3,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-
-
-  <div class='container'>
+  <div class="container">
     <br><br>
-  <div class='container'>
+    <div class="container mx-auto">
 
-  <h1> Upload your file to RMLD File Server</h1>
-  
-  <br>
-  <div class="row row-cols-1 row-cols-md-3 mb-3 text-center" >
-    <div class="col">
-      <div class="card mb-4 rounded-3 shadow-sm">
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-        <div class="card-header py-3">
-          <h4>Select your File</h4>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mt-3 mb-4">
-            <p align='center'>{{ form.as_p }}</p>
-          <button type="submit" class="btn btn-success">Upload</button>
-          </ul>
+      <h1>Upload your file to RMLD File Server</h1>
+      <br>
 
+      <div class="row row-cols-1 row-cols-md-2 mb-3 mx-auto text-center">
+        <div class="col">
+          <div class="card mb-4 rounded-3 shadow-sm">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="card-header py-3">
+                <h4>Select your File</h4>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="id_file" class="form-label">Choose a file:</label>
+                  {{ form.file }}
+                </div>
+
+                <div class="mb-3">
+                  <label for="id_notes" class="form-label">Notes (optional):</label>
+                  {{ form.notes }}
+                </div>
+
+                <button type="submit" class="btn btn-success">Upload</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
-  
-  </div>
-  </div>
-
 {% endblock %}

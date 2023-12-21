@@ -45,6 +45,7 @@
             <ul class="list-unstyled mt-3 mb-4">
               <li><b>Uploaded at: </b>{{ file.uploaded_at }}</li>
               <li><b>Uploaded by: </b>{{ file.user.username }}</li>
+              <li><b>Note: </b>{{file.notes}}</li>
             </ul>
 
             <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success">Download File</a>
