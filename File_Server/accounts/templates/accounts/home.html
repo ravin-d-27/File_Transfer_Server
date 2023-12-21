@@ -7,8 +7,13 @@
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">You can upload your files over cloud and this website stores the uploaded files on Amazon S3 Buckets. You can access download those files anywhere in the Internet. If you don't want it, then delete the file, as simple as that!</p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        {% if user.is_authenticated %}
         <a type="button" class="btn btn-primary btn-lg px-4 gap-3" href='{% url "files:upload_file" %}'>Upload my Files</a>
         <a type="button" class="btn btn-outline-secondary btn-lg px-4" href='{% url 'files:file_list' %}'>View My Files</a>
+        {% else %}
+        <a type="button" class="btn btn-primary btn-lg px-4 gap-3" href='{% url "login" %}'>Upload my Files</a>
+        <a type="button" class="btn btn-outline-secondary btn-lg px-4" href='{% url "login" %}'>View my Files</a>
+        {% endif %}
       </div>
     </div>
   </div>
