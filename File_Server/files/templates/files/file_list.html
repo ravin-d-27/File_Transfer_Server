@@ -3,48 +3,82 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<style>
+  .small-search-bar {
+    width: 250px;
+  }
+</style>
 <div class='container'>
   <br><br>
-<div class='container'>
+  <div class='container'>
+    {% if delete_success %}
+    <div class="container alert alert-success" id="alert-container" role="alert">
+      {{ delete_success }}
+    </div>
+    {% endif %}
 
-  {% if delete_success %}
-  <div class="container alert alert-success" id="alert-container" role="alert">
-    {{ delete_success }}
-  </div>
-  {% endif %}
+    {% if done %}
+    <div class="container alert alert-success" id="alert-container" role="alert">
+      {{ done }}
+    </div>
+    {% endif %}
 
-  {% if done %}
-  <div class="container alert alert-success" id="alert-container" role="alert">
-    {{ done }}
-  </div>
-  {% endif %}
-  
-    
-<h1>Your Files and Documents</h1>
+    <h1>Your Files and Documents</h1>
 <br>
-<div class="row row-cols-1 row-cols-md-3 mb-3 text-center" >
-  {% for file in files %}
-  <div class="col">
-    <div class="card mb-4 rounded-3 shadow-sm">
-      <div class="card-header py-3">
-        <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
+    <div class='container'>
+      <form id="file-search-form">
+        <label for="file-search">Search files:</label>
+        <input type="text" id="file-search" name="file-search" class="form-control small-search-bar" placeholder="Enter your file name here: ">
+      </form>
+  </div>
+
+  <br>
+    <br>
+    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+      {% for file in files %}
+      <div class="col">
+        <div class="card mb-4 rounded-3 shadow-sm">
+          <div class="card-header py-3">
+            <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled mt-3 mb-4">
+              <li><b>Uploaded at: </b>{{ file.uploaded_at }}</li>
+              <li><b>Uploaded by: </b>{{ file.user.username }}</li>
+            </ul>
+
+            <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success">Download File</a>
+            <a href="{% url 'files:delete_file' file_id=file.id %}" class="btn btn-danger">Delete File</a>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <ul class="list-unstyled mt-3 mb-4">
-          <li><b>Uploaded at: </b>{{ file.uploaded_at }}</li>
-          <li><b>Uploaded by: </b>{{ file.user.username }}</li>
-        </ul>
-      
-        <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success">Download File</a>
-        <a href="{% url 'files:delete_file' file_id=file.id %}" class="btn btn-danger">Delete File</a>
-      </div>
+      {% endfor %}
     </div>
   </div>
-  {% endfor %}
 </div>
 
-</div>
-</div>
+<script>
+  // Get the input element and the list items
+  var input = document.getElementById("file-search");
+  var items = document.getElementsByClassName("col");  // Assuming "col" is the class of your list items
+
+  // Add an event listener to the input field
+  input.addEventListener("input", function() {
+    // Get the search query
+    var query = input.value.toLowerCase();
+
+    // Loop through each item and hide/show based on the search query
+    for (var i = 0; i < items.length; i++) {
+      var itemName = items[i].textContent.toLowerCase();
+      if (itemName.includes(query)) {
+        items[i].style.display = "block";
+      } else {
+        items[i].style.display = "none";
+      }
+    }
+  });
+</script>
+
 
 <script>
   setTimeout(function() {
@@ -52,6 +86,7 @@
   }, 4000);
 </script>
 
-
-
 {% endblock %}
+
+
+
