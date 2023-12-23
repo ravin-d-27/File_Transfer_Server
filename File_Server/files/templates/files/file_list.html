@@ -1,4 +1,3 @@
-<!-- files/templates/files/file_list.html -->
 
 {% extends 'base.html' %}
 {% block content %}
@@ -7,7 +6,13 @@
   .small-search-bar {
     width: 250px;
   }
+
+  .file-preview {
+    max-width: 100%;
+    max-height: 200px; /* Adjust the maximum height as needed */
+  }
 </style>
+
 <div class='container'>
   <br><br>
   <div class='container'>
@@ -24,15 +29,15 @@
     {% endif %}
 
     <h1>Your Files and Documents</h1>
-<br>
+    <br>
     <div class='container'>
       <form id="file-search-form">
         <label for="file-search">Search files:</label>
         <input type="text" id="file-search" name="file-search" class="form-control small-search-bar" placeholder="Enter your file name here: ">
       </form>
-  </div>
+    </div>
 
-  <br>
+    <br>
     <br>
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
       {% for file in files %}
@@ -42,10 +47,21 @@
             <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
           </div>
           <div class="card-body">
+            {% if file.file.name|lower|endswith:('.jpg', '.jpeg', '.png', '.gif') %}
+              <!-- Display image preview -->
+              <img src="{{ file.file.url }}" alt="Image preview" class="img-fluid file-preview">
+            {% elif file.file.name|lower|endswith:('.pdf') %}
+              <!-- Display PDF preview using iframe -->
+              <iframe src="{{ file.file.url }}" width="100%" height="200"></iframe>
+            {% else %}
+              <!-- Display a generic file icon or link to download -->
+              <a href="{{ file.file.url }}" target="_blank">Download File</a>
+            {% endif %}
+
             <ul class="list-unstyled mt-3 mb-4">
               <li><b>Uploaded at: </b>{{ file.uploaded_at }}</li>
               <li><b>Uploaded by: </b>{{ file.user.username }}</li>
-              <li><b>Note: </b>{{file.notes}}</li>
+              <li><b>Note: </b>{{ file.notes }}</li>
             </ul>
 
             <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success">Download File</a>
@@ -80,7 +96,6 @@
   });
 </script>
 
-
 <script>
   setTimeout(function() {
     document.getElementById('alert-container').style.display = 'none';
@@ -88,6 +103,3 @@
 </script>
 
 {% endblock %}
-
-
-
