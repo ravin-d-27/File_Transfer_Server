@@ -1,3 +1,4 @@
+<!-- files/templates/files/file_list.html -->
 
 {% extends 'base.html' %}
 {% block content %}
@@ -47,15 +48,16 @@
             <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
           </div>
           <div class="card-body">
-            {% if file.file.name|lower|endswith:('.jpg', '.jpeg', '.png', '.gif') %}
+            {% if file.file.name|lower|slice:"-4:" == '.jpg' or file.file.name|lower|slice:"-5:" == '.jpeg' or file.file.name|lower|slice:"-4:" == '.png' or file.file.name|lower|slice:"-4:" == '.gif' %}
               <!-- Display image preview -->
               <img src="{{ file.file.url }}" alt="Image preview" class="img-fluid file-preview">
-            {% elif file.file.name|lower|endswith:('.pdf') %}
+            {% elif file.file.name|lower|slice:"-4:" == '.pdf' %}
               <!-- Display PDF preview using iframe -->
               <iframe src="{{ file.file.url }}" width="100%" height="200"></iframe>
             {% else %}
               <!-- Display a generic file icon or link to download -->
-              <a href="{{ file.file.url }}" target="_blank">Download File</a>
+              <img alt="svgImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KPGcgaWQ9Il94MzJfMF9EaXJlY3RvcnlfT2ZmaWNlX0ZvbGRlcl9GaWxlX1BhcGVyIj48cGF0aCBmaWxsPSIjZmFlZmRlIiBkPSJNNTcsNTVINmMtMS43LDAtMy0xLjMtMy0zVjE0YzAtMS43LDEuMy0zLDMtM2gxNWw5LDZoMjRjMS43LDAsMywxLjMsMywzVjU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNmZmY3ZjAiIGQ9Ik02LDExaDE2bDcsN0gzdi00QzMsMTIuMyw0LjMsMTEsNiwxMXoiPjwvcGF0aD48cGF0aCBmaWxsPSIjY2RhMWE3IiBkPSJNNjAsNTVoLTNWMjFoNGMxLjEsMCwyLDAuOSwyLDJ2MjlDNjMsNTMuNyw2MS43LDU1LDYwLDU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNlZmQ4YmUiIGQ9Ik01Nyw1NUg2Yy0xLjcsMC0zLTEuMy0zLTN2LTdoNTRWNTV6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2Y3NWY4MyIgZD0iTTMxIDI0aC02Yy0uNiAwLTEgLjQtMSAxcy40IDEgMSAxaDZjLjYgMCAxLS40IDEtMVMzMS42IDI0IDMxIDI0ek0xMSAyNmgxMGMuNiAwIDEtLjQgMS0xcy0uNC0xLTEtMUgxMWMtLjYgMC0xIC40LTEgMVMxMC40IDI2IDExIDI2ek0xNSAyOGgtNGMtLjYgMC0xIC40LTEgMXMuNCAxIDEgMWg0Yy42IDAgMS0uNCAxLTFTMTUuNiAyOCAxNSAyOHpNMjYgMjhoLTdjLS42IDAtMSAuNC0xIDFzLjQgMSAxIDFoN2MuNiAwIDEtLjQgMS0xUzI2LjYgMjggMjYgMjh6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTUzLDQ0aC00Yy0wLjYsMC0xLDAuNC0xLDFzMC40LDEsMSwxaDRjMC42LDAsMS0wLjQsMS0xUzUzLjYsNDQsNTMsNDR6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTYxLDIwaC0zdi0xYzAtMS43LTEuMy0zLTMtM0gyOS43Yy0wLjgsMC0xLjUtMC4zLTIuMS0wLjlsLTMuNy0zLjdjLTAuOS0wLjktMi4yLTEuNC0zLjUtMS40SDUgYy0xLjcsMC0zLDEuMy0zLDN2MzljMCwyLjIsMS44LDQsNCw0aDUzaDFjMi4yLDAsNC0xLjgsNC00VjIzQzY0LDIxLjMsNjIuNywyMCw2MSwyMHogTTYsNTRjLTEuMSwwLTItMC45LTItMnYtNmg0MSBjMC42LDAsMS0wLjQsMS0xcy0wLjQtMS0xLTFINFYxM2MwLTAuNiwwLjQtMSwxLTFoMTUuNGMwLjgsMCwxLjUsMC4zLDIuMSwwLjlsMy43LDMuN2MwLjksMC45LDIuMiwxLjQsMy41LDEuNEg1NSBjMC42LDAsMSwwLjQsMSwxdjMzYzAsMC42LDAuMiwxLjMsMC42LDJINnogTTYyLDUyYzAsMS4xLTAuOSwyLTIsMmMtMS4yLDAtMi0xLjQtMi0yVjIyaDNjMC42LDAsMSwwLjQsMSwxVjUyeiI+PC9wYXRoPjxwYXRoIGZpbGw9IiM4ZDZjOWYiIGQ9Ik03IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzggNDguNCA3LjYgNDggNyA0OHpNMTIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMTMgNDguNCAxMi42IDQ4IDEyIDQ4ek0xNyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMxOCA0OC40IDE3LjYgNDggMTcgNDh6TTIyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzIzIDQ4LjQgMjIuNiA0OCAyMiA0OHpNMjcgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMjggNDguNCAyNy42IDQ4IDI3IDQ4ek0zMiA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMzMyA0OC40IDMyLjYgNDggMzIgNDh6TTM3IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzM4IDQ4LjQgMzcuNiA0OCAzNyA0OHpNNDIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDNDMgNDguNCA0Mi42IDQ4IDQyIDQ4ek00NyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkM0OCA0OC40IDQ3LjYgNDggNDcgNDh6TTUyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzUzIDQ4LjQgNTIuNiA0OCA1MiA0OHoiPjwvcGF0aD48L2c+Cjwvc3ZnPg=="/>
+              <p>Cannot preview this format.</p> <p>Please download and view it</p>
             {% endif %}
 
             <ul class="list-unstyled mt-3 mb-4">
