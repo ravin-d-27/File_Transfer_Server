@@ -68,7 +68,7 @@
             </ul>
 
             <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success" id='download'>Download File</a>
-            <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success" id='download' target="_blank">View File</a>
+            <a href="{% url 'files:view_file' file_id=file.id %}" class="btn btn-warning" id='view' target="_blank">View File</a>
             <a class="btn btn-danger" id='delete' onclick="raise_alerts({{file.id}})">Delete File</a>
           </div>
         </div>

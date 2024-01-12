@@ -47,3 +47,19 @@ def delete_file(request, file_id):
     
     files = UploadedFile.objects.filter(user=request.user)
     return redirect('files:file_list')
+
+from django.http import FileResponse
+
+@login_required
+def view_file(request, file_id):
+    file_instance = get_object_or_404(UploadedFile, id=file_id)
+    file_path = file_instance.file.name
+    file_extension = file_path.split('.')[-1].lower()
+    if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+        return FileResponse(file_instance.file, content_type='image/'+file_extension)
+    elif file_extension == 'pdf':
+        response = FileResponse(file_instance.file, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
+        return response
+    else:
+        return redirect('files:download_file', file_id=file_id)
