@@ -10,6 +10,8 @@ RMLD File Server is a Django-based web application that allows users to upload, 
 - File Download: Download files uploaded by the user.
 - File Deletion: Delete files uploaded by the user.
 - Search: Search for files based on file names.
+- View: You can preview/view the file in the browser itself without downloading to your local machine.
+- Share: You can now share the link of the file to others for viewing purpose alone.
 
 ## Prerequisites
 
