@@ -70,7 +70,7 @@
             <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success" id='download'>Download File</a>
             <a href="{% url 'files:view_file' file_id=file.id %}" class="btn btn-warning" id='view' target="_blank">View File</a>
             <a class="btn btn-danger" id='delete' onclick="raise_alerts({{file.id}})">Delete File</a>
-            <a href="{% url 'files:share_file' file_id=file.id %}" class="btn btn-primary" id='view' target="_blank">Share File Link</a>
+            <a href="{% url 'files:share_file' file_id=file.id %}" class="btn btn-primary" id='view' target="_blank" onclick="showFileLink()">Share File Link</a>
           </div>
         </div>
       </div>
@@ -91,6 +91,20 @@
             }
         }
       </script>
+
+      <script>
+        function showFileLink() {
+            // Get the href attribute of the clicked link
+            var fileLink = document.getElementById('view').getAttribute('href');
+            
+            // Display the URL in an alert box
+            alert("Copy your File Sharing Link: " + fileLink);
+            
+            // Optionally, prevent the default behavior of the link (opening in a new tab)
+            // You can remove the next line if you want the link to open in a new tab as usual
+            event.preventDefault();
+        }
+    </script>
       {% endfor %}
     </div>
   </div>
