@@ -1,7 +1,7 @@
 # files/urls.py
 
 from django.urls import path
-from .views import file_list, upload_file, download_file, delete_file, view_file, share_file
+from .views import file_list, upload_file, download_file, delete_file, view_file
 
 app_name= 'files'
 urlpatterns = [
@@ -10,5 +10,4 @@ urlpatterns = [
     path('download/<int:file_id>/', download_file, name='download_file'),
     path('delete/<int:file_id>/', delete_file, name='delete_file'),
     path('view_file/<int:file_id>/', view_file, name='view_file'),
-    path('share_file/<int:file_id>/', share_file, name='share_file'),
 ]
