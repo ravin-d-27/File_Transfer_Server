@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import UploadedFile
 from .forms import FileUploadForm
 from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.files.storage import default_storage
 
 @login_required
 def file_list(request):
@@ -37,15 +38,13 @@ def download_file(request, file_id):
 @login_required
 def delete_file(request, file_id):
     file_instance = get_object_or_404(UploadedFile, id=file_id)
-    storage = S3Boto3Storage()
     file_path = file_instance.file.name
 
-    if storage.exists(file_path):
-        storage.delete(file_path)
+    if default_storage.exists(file_path):
+        default_storage.delete(file_path)
+
     file_instance.delete()
-    
-    
-    files = UploadedFile.objects.filter(user=request.user)
+
     return redirect('files:file_list')
 
 from django.http import FileResponse
