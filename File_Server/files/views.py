@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from .models import UploadedFile
 from .forms import FileUploadForm
 from storages.backends.s3boto3 import S3Boto3Storage
-from django.core.files.storage import default_storage
 
 @login_required
 def file_list(request):
@@ -39,15 +38,15 @@ def download_file(request, file_id):
 def delete_file(request, file_id):
     file_instance = get_object_or_404(UploadedFile, id=file_id)
     storage = S3Boto3Storage()
-    file_path = file_instance.file.name  # Use the file field's name attribute
+    file_path = file_instance.file.name
 
     if storage.exists(file_path):
         storage.delete(file_path)
     file_instance.delete()
-
+    
+    
     files = UploadedFile.objects.filter(user=request.user)
     return redirect('files:file_list')
-
 
 from django.http import FileResponse
 
@@ -65,3 +64,16 @@ def view_file(request, file_id):
     else:
         return redirect('files:download_file', file_id=file_id)
     
+    
+def share_file(request, file_id):
+    file_instance = get_object_or_404(UploadedFile, id=file_id)
+    file_path = file_instance.file.name
+    file_extension = file_path.split('.')[-1].lower()
+    if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+        return FileResponse(file_instance.file, content_type='image/'+file_extension)
+    elif file_extension == 'pdf':
+        response = FileResponse(file_instance.file, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
+        return response
+    else:
+        return redirect('files:download_file', file_id=file_id)
