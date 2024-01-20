@@ -38,14 +38,16 @@ def download_file(request, file_id):
 @login_required
 def delete_file(request, file_id):
     file_instance = get_object_or_404(UploadedFile, id=file_id)
-    file_path = file_instance.file.name
+    storage = S3Boto3Storage()
+    file_path = file_instance.file.name  # Use the file field's name attribute
 
-    if default_storage.exists(file_path):
-        default_storage.delete(file_path)
-
+    if storage.exists(file_path):
+        storage.delete(file_path)
     file_instance.delete()
 
+    files = UploadedFile.objects.filter(user=request.user)
     return redirect('files:file_list')
+
 
 from django.http import FileResponse
 
