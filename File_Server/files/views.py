@@ -26,46 +26,57 @@ def upload_file(request):
     return render(request, 'files/upload_file.html', {'form': form})
 
 @login_required
-def download_file(request, file_id):
-    hashed_file_id = make_password(str(file_id))
-    file = get_object_or_404(UploadedFile, id=hashed_file_id)
-    response = HttpResponse(file.file, content_type='application/force-download')
-    response['Content-Disposition'] = f'attachment; filename={file.file.name}'
+def download_file(request, unique_token):
+    file_instance = get_object_or_404(UploadedFile, unique_token=unique_token)
+    response = HttpResponse(file_instance.file, content_type='application/force-download')
+    response['Content-Disposition'] = f'attachment; filename={file_instance.file.name}'
     return response
 
+# views.py
+
 @login_required
-def delete_file(request, file_id):
-    hashed_file_id = make_password(str(file_id))
-    file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
+def delete_file(request, unique_token):
+    # Try to find the file by unique_token
+    file_instance = get_object_or_404(UploadedFile, unique_token=unique_token)
+
+    # If file_instance is not found, try to find by hashed_file_id
+    if not file_instance:
+        hashed_file_id = unique_token
+        try:
+            file_instance = UploadedFile.objects.get(hashed_file_id=hashed_file_id)
+        except UploadedFile.DoesNotExist:
+            return HttpResponse("File not found.", status=404)
+
     storage = S3Boto3Storage()
     file_path = file_instance.file.name
 
     if storage.exists(file_path):
         storage.delete(file_path)
+
     file_instance.delete()
 
     files = UploadedFile.objects.filter(user=request.user)
     return redirect('files:file_list')
 
-@login_required
-def view_file(request, file_id):
-    hashed_file_id = make_password(str(file_id))
-    file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
-    file_path = file_instance.file.name
-    file_extension = file_path.split('.')[-1].lower()
-    if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
-        return FileResponse(file_instance.file, content_type='image/'+file_extension)
-    elif file_extension == 'pdf':
-        response = FileResponse(file_instance.file, content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
-        return response
-    else:
-        return redirect('files:download_file', file_id=hashed_file_id)
+
 
 @login_required
-def share_file(request, file_id):
-    hashed_file_id = make_password(str(file_id))
-    file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
+def view_file(request, unique_token):
+    file_instance = get_object_or_404(UploadedFile, unique_token=unique_token)
+    file_path = file_instance.file.name
+    file_extension = file_path.split('.')[-1].lower()
+    
+    if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+        return FileResponse(file_instance.file, content_type='image/'+file_extension)
+    elif file_extension == 'pdf':
+        response = FileResponse(file_instance.file, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
+        return response
+    else:
+        return redirect('files:download_file', file_id=file_instance.id)
+    
+def share_file(request, unique_token):
+    file_instance = get_object_or_404(UploadedFile, unique_token=unique_token)
     file_path = file_instance.file.name
     file_extension = file_path.split('.')[-1].lower()
     if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
@@ -75,4 +86,4 @@ def share_file(request, file_id):
         response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
         return response
     else:
-        return redirect('files:download_file', file_id=hashed_file_id)
+        return redirect('files:download_file', unique_token=unique_token)
