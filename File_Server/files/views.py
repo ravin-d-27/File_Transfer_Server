@@ -1,8 +1,7 @@
-# files/views.py
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, FileResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.hashers import make_password
 from .models import UploadedFile
 from .forms import FileUploadForm
 from storages.backends.s3boto3 import S3Boto3Storage
@@ -28,31 +27,30 @@ def upload_file(request):
 
 @login_required
 def download_file(request, file_id):
-    file = get_object_or_404(UploadedFile, id=file_id)
+    hashed_file_id = make_password(file_id)
+    file = get_object_or_404(UploadedFile, id=hashed_file_id)
     response = HttpResponse(file.file, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment; filename={file.file.name}'
     return response
 
-
 @login_required
 def delete_file(request, file_id):
-    file_instance = get_object_or_404(UploadedFile, id=file_id)
+    hashed_file_id = make_password(file_id)
+    file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
     storage = S3Boto3Storage()
     file_path = file_instance.file.name
 
     if storage.exists(file_path):
         storage.delete(file_path)
     file_instance.delete()
-    
-    
+
     files = UploadedFile.objects.filter(user=request.user)
     return redirect('files:file_list')
 
-from django.http import FileResponse
-
 @login_required
 def view_file(request, file_id):
-    file_instance = get_object_or_404(UploadedFile, id=file_id)
+    hashed_file_id = make_password(file_id)
+    file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
     file_path = file_instance.file.name
     file_extension = file_path.split('.')[-1].lower()
     if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
@@ -62,11 +60,11 @@ def view_file(request, file_id):
         response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
         return response
     else:
-        return redirect('files:download_file', file_id=file_id)
-    
-    
+        return redirect('files:download_file', file_id=hashed_file_id)
+
 def share_file(request, file_id):
-    file_instance = get_object_or_404(UploadedFile, id=file_id)
+    hashed_file_id = make_password(file_id)
+    file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
     file_path = file_instance.file.name
     file_extension = file_path.split('.')[-1].lower()
     if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
@@ -76,4 +74,4 @@ def share_file(request, file_id):
         response['Content-Disposition'] = f'inline; filename={file_instance.file.name}'
         return response
     else:
-        return redirect('files:download_file', file_id=file_id)
+        return redirect('files:download_file', file_id=hashed_file_id)
