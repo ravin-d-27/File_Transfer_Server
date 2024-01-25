@@ -67,29 +67,28 @@
               <li><b>Note: </b>{{ file.notes }}</li>
             </ul>
 
-            <a href="{% url 'files:share_file' file_id=file.id %}" class="btn btn-primary" id='view' target="_blank">Share File Link</a>
-            <a href="{% url 'files:download_file' file_id=file.id %}" class="btn btn-success" id='download'>Download File</a>
-            <a href="{% url 'files:view_file' file_id=file.id %}" class="btn btn-warning" id='view' target="_blank">View File</a>
-            <a class="btn btn-danger" id='delete' onclick="raise_alerts({{file.id}})">Delete File</a>
+            <a href="{% url 'files:share_file' unique_token=file.unique_token %}" class="btn btn-primary" id='view' target="_blank">Share File Link</a>
+            <a href="{% url 'files:download_file' unique_token=file.unique_token %}" class="btn btn-success" id='download'>Download File</a>
+            <a href="{% url 'files:view_file' unique_token=file.unique_token %}" class="btn btn-warning" id='view' target="_blank">View File</a>
+            <a class="btn btn-danger" id='delete' href="{% url 'files:delete_file' unique_token=file.unique_token %}">Delete File</a>
+            
           </div>
         </div>
       </div>
 
       <script>
-        function raise_alerts(file_id)
-        {
-            yes = confirm("Are you sure you want to delete this file?");
+        function raise_alerts(file_id) {
+          yes = confirm("Are you sure you want to delete this file?");
+  
+          if (yes == true) {
+              // Replace 'file.id' with the actual value of the file_id variable
+              window.location.replace("{% url 'files:delete_file' unique_token='" + file_id + "' %}");
 
-            if (yes == true)
-            {
-                window.location.replace("{% url 'files:delete_file' file_id=file.id %}".replace('file.id', 'file_id)'));
-                alert("File deleted successfully");
-            }
-            else
-            {
-                alert("File not deleted");
-            }
-        }
+              alert("File deleted successfully");
+          } else {
+              alert("File not deleted");
+          }
+      }
       </script>
       {% endfor %}
     </div>
