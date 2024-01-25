@@ -27,7 +27,7 @@ def upload_file(request):
 
 @login_required
 def download_file(request, file_id):
-    hashed_file_id = make_password(file_id)
+    hashed_file_id = make_password(str(file_id))
     file = get_object_or_404(UploadedFile, id=hashed_file_id)
     response = HttpResponse(file.file, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment; filename={file.file.name}'
@@ -35,7 +35,7 @@ def download_file(request, file_id):
 
 @login_required
 def delete_file(request, file_id):
-    hashed_file_id = make_password(file_id)
+    hashed_file_id = make_password(str(file_id))
     file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
     storage = S3Boto3Storage()
     file_path = file_instance.file.name
@@ -49,7 +49,7 @@ def delete_file(request, file_id):
 
 @login_required
 def view_file(request, file_id):
-    hashed_file_id = make_password(file_id)
+    hashed_file_id = make_password(str(file_id))
     file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
     file_path = file_instance.file.name
     file_extension = file_path.split('.')[-1].lower()
@@ -62,8 +62,9 @@ def view_file(request, file_id):
     else:
         return redirect('files:download_file', file_id=hashed_file_id)
 
+@login_required
 def share_file(request, file_id):
-    hashed_file_id = make_password(file_id)
+    hashed_file_id = make_password(str(file_id))
     file_instance = get_object_or_404(UploadedFile, id=hashed_file_id)
     file_path = file_instance.file.name
     file_extension = file_path.split('.')[-1].lower()
