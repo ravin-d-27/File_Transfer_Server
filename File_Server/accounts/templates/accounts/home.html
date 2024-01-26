@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+{% load static %}
 
-<div class="px-4 py-5 my-5 text-center">
+<div class="px-4 py-2 my-3 text-center">
     <br><br><br><br>
+    <div class="text-center">
+      <img class="rounded-circle mx-auto mb-4" src="{% static 'logo.png' %}" alt="" width="200" height="200">
+    </div>
     <h1 class="display-5 fw-bold">Welcome to RMLD File Server</h1>
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">You can upload your files over cloud and this website stores the uploaded files on Amazon S3 Buckets. You can access download those files anywhere in the Internet. If you don't want it, then delete the file, as simple as that!</p>
