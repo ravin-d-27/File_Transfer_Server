@@ -1,4 +1,8 @@
+
 # RMLD File Server
+<div align='center'>
+<img src='File_Server/File_Server/static/logo.png'>
+</div>
 
 RMLD File Server is a Django-based web application that allows users to upload, manage, and download files securely with the help of AWS S3 Buckets and ElephantSQL Postgres Cloud Services.
 
@@ -12,6 +16,8 @@ RMLD File Server is a Django-based web application that allows users to upload, 
 - Search: Search for files based on file names.
 - View: You can preview/view the file in the browser itself without downloading to your local machine.
 - Share: You can now share the link of the file to others for viewing purpose alone.
+- Encryption: Provides URL Level Encryption, hence it improves security and user abstraction.
+- File Storage Meter: Displays how much space has been consumed by each user.
 
 ## Prerequisites
 
