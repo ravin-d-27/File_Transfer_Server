@@ -8,4 +8,5 @@ urlpatterns = [
     path('files/', include('files.urls')),
     path('login/', acviews.login, name='login'),
     path('logout/', acviews.logout, name='logout'),
+    path('activity/', include('activity.urls')),
 ]

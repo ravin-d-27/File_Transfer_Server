@@ -1,0 +1,29 @@
+<!-- activity/templates/activity/activity_log.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br>
+    <br>
+    <h1>User Activity Log</h1>
+    <br>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Activity</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td>{{ activity.user.username }}</td>
+                <td>{{ activity.activity_type }}</td>
+                <td>{{ activity.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

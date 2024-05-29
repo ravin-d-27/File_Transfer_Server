@@ -7,7 +7,6 @@ from .forms import FileUploadForm
 from storages.backends.s3boto3 import S3Boto3Storage
 from django.db.models import Sum
 
-from django.db.models import Sum
 
 @login_required
 def file_list(request):
@@ -100,3 +99,4 @@ def share_file(request, unique_token):
         return response
     else:
         return redirect('files:download_file', unique_token=unique_token)
+

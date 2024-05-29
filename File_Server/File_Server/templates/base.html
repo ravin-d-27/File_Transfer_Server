@@ -92,6 +92,7 @@
               <a class='nav-item nav-link'>User: {{user.username}}</a>
               <a class='nav-item nav-link active' href="{% url 'files:file_list' %}">View</a>
               <a class='nav-item nav-link active' href="{% url 'files:upload_file' %}">Upload</a>
+              <a class='nav-item nav-link active' href="{% url 'activity:activity_log' %}">Logs</a>
               <a class='nav-item nav-link' href="JavaScript:{document.getElementById('logout').submit()}">Logout</a>
               <form id='logout' method='POST' action="{% url 'logout' %}">
                 {% csrf_token %}
