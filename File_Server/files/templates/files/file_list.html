@@ -1,4 +1,4 @@
-<!-- files/templates/files/file_list.html -->
+
 
 {% extends 'base.html' %}
 {% block content %}
@@ -12,6 +12,19 @@
   .file-preview {
     max-width: 100%;
     max-height: 200px; /* Adjust the maximum height as needed */
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 </style>
 
@@ -45,23 +58,25 @@
     <br>
     <br>
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+      
       {% for file in files %}
       <div class="col">
-        <div class="card mb-4 rounded-3 shadow-sm">
-          <div class="card-header py-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header py-3 bg-secondary text-white">
             <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
           </div>
-          <div class="card-body">
+          <div class="card-body d-flex flex-column">
             {% if file.file.name|lower|slice:"-4:" == '.jpg' or file.file.name|lower|slice:"-5:" == '.jpeg' or file.file.name|lower|slice:"-4:" == '.png' or file.file.name|lower|slice:"-4:" == '.gif' %}
               <!-- Display image preview -->
-              <img src="{{ file.file.url }}" alt="Image preview" class="img-fluid file-preview">
+              <img src="{{ file.file.url }}" alt="Image preview" class="img-fluid file-preview mb-3" style="max-height: 200px; object-fit: cover;">
             {% elif file.file.name|lower|slice:"-4:" == '.pdf' %}
               <!-- Display PDF preview using iframe -->
-              <iframe src="{{ file.file.url }}" width="100%" height="200"></iframe>
+              <iframe src="{{ file.file.url }}" width="100%" height="200" class="mb-3"></iframe>
             {% else %}
-              <!-- Display a generic file icon or link to download -->
-              <img alt="svgImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KPGcgaWQ9Il94MzJfMF9EaXJlY3RvcnlfT2ZmaWNlX0ZvbGRlcl9GaWxlX1BhcGVyIj48cGF0aCBmaWxsPSIjZmFlZmRlIiBkPSJNNTcsNTVINmMtMS43LDAtMy0xLjMtMy0zVjE0YzAtMS43LDEuMy0zLDMtM2gxNWw5LDZoMjRjMS43LDAsMywxLjMsMywzVjU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNmZmY3ZjAiIGQ9Ik02LDExaDE2bDcsN0gzdi00QzMsMTIuMyw0LjMsMTEsNiwxMXoiPjwvcGF0aD48cGF0aCBmaWxsPSIjY2RhMWE3IiBkPSJNNjAsNTVoLTNWMjFoNGMxLjEsMCwyLDAuOSwyLDJ2MjlDNjMsNTMuNyw2MS43LDU1LDYwLDU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNlZmQ4YmUiIGQ9Ik01Nyw1NUg2Yy0xLjcsMC0zLTEuMy0zLTN2LTdoNTRWNTV6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2Y3NWY4MyIgZD0iTTMxIDI0aC02Yy0uNiAwLTEgLjQtMSAxcy40IDEgMSAxaDZjLjYgMCAxLS40IDEtMVMzMS42IDI0IDMxIDI0ek0xMSAyNmgxMGMuNiAwIDEtLjQgMS0xcy0uNC0xLTEtMUgxMWMtLjYgMC0xIC40LTEgMVMxMC40IDI2IDExIDI2ek0xNSAyOGgtNGMtLjYgMC0xIC40LTEgMXMuNCAxIDEgMWg0Yy42IDAgMS0uNCAxLTFTMTUuNiAyOCAxNSAyOHpNMjYgMjhoLTdjLS42IDAtMSAuNC0xIDFzLjQgMSAxIDFoN2MuNiAwIDEtLjQgMS0xUzI2LjYgMjggMjYgMjh6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTUzLDQ0aC00Yy0wLjYsMC0xLDAuNC0xLDFzMC40LDEsMSwxaDRjMC42LDAsMS0wLjQsMS0xUzUzLjYsNDQsNTMsNDR6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTYxLDIwaC0zdi0xYzAtMS43LTEuMy0zLTMtM0gyOS43Yy0wLjgsMC0xLjUtMC4zLTIuMS0wLjlsLTMuNy0zLjdjLTAuOS0wLjktMi4yLTEuNC0zLjUtMS40SDUgYy0xLjcsMC0zLDEuMy0zLDN2MzljMCwyLjIsMS44LDQsNCw0aDUzaDFjMi4yLDAsNC0xLjgsNC00VjIzQzY0LDIxLjMsNjIuNywyMCw2MSwyMHogTTYsNTRjLTEuMSwwLTItMC45LTItMnYtNmg0MSBjMC42LDAsMS0wLjQsMS0xcy0wLjQtMS0xLTFINFYxM2MwLTAuNiwwLjQtMSwxLTFoMTUuNGMwLjgsMCwxLjUsMC4zLDIuMSwwLjlsMy43LDMuN2MwLjksMC45LDIuMiwxLjQsMy41LDEuNEg1NSBjMC42LDAsMSwwLjQsMSwxdjMzYzAsMC42LDAuMiwxLjMsMC42LDJINnogTTYyLDUyYzAsMS4xLTAuOSwyLTIsMmMtMS4yLDAtMi0xLjQtMi0yVjIyaDNjMC42LDAsMSwwLjQsMSwxVjUyeiI+PC9wYXRoPjxwYXRoIGZpbGw9IiM4ZDZjOWYiIGQ9Ik03IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzggNDguNCA3LjYgNDggNyA0OHpNMTIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMTMgNDguNCAxMi42IDQ4IDEyIDQ4ek0xNyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMxOCA0OC40IDE3LjYgNDggMTcgNDh6TTIyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzIzIDQ4LjQgMjIuNiA0OCAyMiA0OHpNMjcgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMjggNDguNCAyNy42IDQ4IDI3IDQ4ek0zMiA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMzMyA0OC40IDMyLjYgNDggMzIgNDh6TTM3IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzM4IDQ4LjQgMzcuNiA0OCAzNyA0OHpNNDIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDNDMgNDguNCA0Mi42IDQ4IDQyIDQ4ek00NyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkM0OCA0OC40IDQ3LjYgNDggNDcgNDh6TTUyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzUzIDQ4LjQgNTIuNiA0OCA1MiA0OHoiPjwvcGF0aD48L2c+Cjwvc3ZnPg=="/>
-              <p>Cannot preview this format.</p> <p>Please download and view it</p>
+            <div class="d-flex justify-content-center align-items-center mb-3" style="height: 200px;">
+              <img alt="svgImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KPGcgaWQ9Il94MzJfMF9EaXJlY3RvcnlfT2ZmaWNlX0ZvbGRlcl9GaWxlX1BhcGVyIj48cGF0aCBmaWxsPSIjZmFlZmRlIiBkPSJNNTcsNTVINmMtMS43LDAtMy0xLjMtMy0zVjE0YzAtMS43LDEuMy0zLDMtM2gxNWw5LDZoMjRjMS43LDAsMywxLjMsMywzVjU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNmZmY3ZjAiIGQ9Ik02LDExaDE2bDcsN0gzdi00QzMsMTIuMyw0LjMsMTEsNiwxMXoiPjwvcGF0aD48cGF0aCBmaWxsPSIjY2RhMWE3IiBkPSJNNjAsNTVoLTNWMjFoNGMxLjEsMCwyLDAuOSwyLDJ2MjlDNjMsNTMuNyw2MS43LDU1LDYwLDU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNlZmQ4YmUiIGQ9Ik01Nyw1NUg2Yy0xLjcsMC0zLTEuMy0zLTN2LTdoNTRWNTV6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2Y3NWY4MyIgZD0iTTMxIDI0aC02Yy0uNiAwLTEgLjQtMSAxcy40IDEgMSAxaDZjLjYgMCAxLS40IDEtMVMzMS42IDI0IDMxIDI0ek0xMSAyNmgxMGMuNiAwIDEtLjQgMS0xcy0uNC0xLTEtMUgxMWMtLjYgMC0xIC40LTEgMVMxMC40IDI2IDExIDI2ek0xNSAyOGgtNGMtLjYgMC0xIC40LTEgMXMuNCAxIDEgMWg0Yy42IDAgMS0uNCAxLTFTMTUuNiAyOCAxNSAyOHpNMjYgMjhoLTdjLS42IDAtMSAuNC0xIDFzLjQgMSAxIDFoN2MuNiAwIDEtLjQgMS0xUzI2LjYgMjggMjYgMjh6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTUzLDQ0aC00Yy0wLjYsMC0xLDAuNC0xLDFzMC40LDEsMSwxaDRjMC42LDAsMS0wLjQsMS0xUzUzLjYsNDQsNTMsNDR6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTYxLDIwaC0zdi0xYzAtMS43LTEuMy0zLTMtM0gyOS43Yy0wLjgsMC0xLjUtMC4zLTIuMS0wLjlsLTMuNy0zLjdjLTAuOS0wLjktMi4yLTEuNC0zLjUtMS40SDUgYy0xLjcsMC0zLDEuMy0zLDN2MzljMCwyLjIsMS44LDQsNCw0aDUzaDFjMi4yLDAsNC0xLjgsNC00VjIzQzY0LDIxLjMsNjIuNywyMCw2MSwyMHogTTYsNTRjLTEuMSwwLTItMC45LTItMnYtNmg0MSBjMC42LDAsMS0wLjQsMS0xcy0wLjQtMS0xLTFINFYxM2MwLTAuNiwwLjQtMSwxLTFoMTUuNGMwLjgsMCwxLjUsMC4zLDIuMSwwLjlsMy43LDMuN2MwLjksMC45LDIuMiwxLjQsMy41LDEuNEg1NSBjMC42LDAsMSwwLjQsMSwxdjMzYzAsMC42LDAuMiwxLjMsMC42LDJINnogTTYyLDUyYzAsMS4xLTAuOSwyLTIsMmMtMS4yLDAtMi0xLjQtMi0yVjIyaDNjMC42LDAsMSwwLjQsMSwxVjUyeiI+PC9wYXRoPjxwYXRoIGZpbGw9IiM4ZDZjOWYiIGQ9Ik03IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzggNDguNCA3LjYgNDggNyA0OHpNMTIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMTMgNDguNCAxMi42IDQ4IDEyIDQ4ek0xNyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMxOCA0OC40IDE3LjYgNDggMTcgNDh6TTIyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzIzIDQ4LjQgMjIuNiA0OCAyMiA0OHpNMjcgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMjggNDguNCAyNy42IDQ4IDI3IDQ4ek0zMiA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMzMyA0OC40IDMyLjYgNDggMzIgNDh6TTM3IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzM4IDQ4LjQgMzcuNiA0OCAzNyA0OHpNNDIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDNDMgNDguNCA0Mi42IDQ4IDQyIDQ4ek00NyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkM0OCA0OC40IDQ3LjYgNDggNDcgNDh6TTUyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzUzIDQ4LjQgNTIuNiA0OCA1MiA0OHoiPjwvcGF0aD48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjYsMzljMCwwLjYsMC40LDEsMSwxczEtMC40LDEtMVYxOGMwLTAuNi0wLjQtMS0xLTFzLTEsMC40LTEsMXYyME0yNiAzOS42Yy0wLjQsMC0wLjgtMC4yLTEtMC42TDIzLjksMzZsLTIuMSwwLjdjLTAuNSwwLjItMS4xLTAuMS0xLjMtMC43czAuMS0xLjEsMC43LTEuM2wzLTJjMC40LTAuMywxLTAuMywxLjQsMGwzLDJjMC41LDAuMiwwLjgsMC43LDAuNiAxLjNTMjYuMSAzOS42IDI2IDM5LjZ6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI2LDE1LjNjMCwwLjYsMC40LDEsMSwxczEtMC40LDEtMXY1YzAsMC42LTAuNCwxLTEsMXMtMS0wLjQtMS0xVjE1LjN6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI2LDM5LjZjLTAuNCwwLTAuOC0wLjItMS0wLjZsLTIuMS0yLjJjLTAuMy0wLjQtMC4zLTEsMC0xLjRsMi45LTVoM2wyLjksNWMyLDAuNCwwLjMsMSwwLDEuNGwtMi4xLDIuMkMyNi4zLDM5LjQsMjYuMSwzOS42LDI2LDM5LjZ6Ij48L3BhdGg+PC9nPjwvc3ZnPg=="/>
+            </div>
+            <p><b>Cannot preview this format. Please download and view it</b></p>
             {% endif %}
 
             <ul class="list-unstyled mt-3 mb-4">
@@ -69,12 +84,13 @@
               <li><b>Uploaded by: </b>{{ file.user.username }}</li>
               <li><b>Note: </b>{{ file.notes }}</li>
             </ul>
-
-            <a href="{% url 'files:share_file' unique_token=file.unique_token %}" class="btn btn-primary" id='view' target="_blank">Share File Link</a>
-            <a href="{% url 'files:download_file' unique_token=file.unique_token %}" class="btn btn-success" id='download'>Download File</a>
-            <a href="{% url 'files:view_file' unique_token=file.unique_token %}" class="btn btn-warning" id='view' target="_blank">View File</a>
-            <a class="btn btn-danger" id='delete' href="{% url 'files:delete_file' unique_token=file.unique_token %}">Delete File</a>
-            
+          
+            <div>
+              <a href="{% url 'files:share_file' unique_token=file.unique_token %}" class="btn btn-primary" id='view' target="_blank">Share Link</a>
+              <a href="{% url 'files:download_file' unique_token=file.unique_token %}" class="btn btn-success" id='download'>Download</a>
+              <a href="{% url 'files:view_file' unique_token=file.unique_token %}" class="btn btn-warning" id='view' target="_blank">View</a>
+              <a class="btn btn-danger" id='delete' href="{% url 'files:delete_file' unique_token=file.unique_token %}">Delete</a>
+          </div>
           </div>
         </div>
       </div>
