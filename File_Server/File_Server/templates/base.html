@@ -106,6 +106,13 @@
           </div>
       </div>
     </nav>
+    <br>
+    {% if user.username == "sampleuser" %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>Note:</strong> Your storage is limited to 5MB for demonstration purposes.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
   
   </div>
 

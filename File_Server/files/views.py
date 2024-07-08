@@ -30,12 +30,22 @@ def upload_file(request):
         if form.is_valid():
             file_instance = form.save(commit=False)
             file_instance.user = request.user
+
+            # Check if the user is 'sampleuser' and if the total file size exceeds 5 MB
+            if request.user.username == 'sampleuser':
+                files = UploadedFile.objects.filter(user=request.user)
+                total_file_size_bytes = sum(file.file.size for file in files) + request.FILES['file'].size
+                total_file_size_mb = total_file_size_bytes / (1024 * 1024)
+
+                if total_file_size_mb > 5:
+                    return render(request, 'files/upload_file.html', {'form': form, 'error': 'You have exceeded the 5 MB storage limit.'})
+            
             file_instance.save()
-            files = UploadedFile.objects.filter(user=request.user)
             return redirect('files:file_list')
     else:
         form = FileUploadForm()
     return render(request, 'files/upload_file.html', {'form': form})
+
 
 @login_required
 def download_file(request, unique_token):
