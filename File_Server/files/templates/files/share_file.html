@@ -1,0 +1,31 @@
+<!-- templates/files/share_file.html -->
+
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <br><br>
+    <div class="container mx-auto">
+        <h1>Share File</h1>
+        <div class="alert alert-info" role="alert">
+            Copy the link below to share the file:
+            <div class="input-group mt-3">
+                <input type="text" id="share-link-input" class="form-control" value="{{ share_link }}" readonly>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">Copy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard() {
+        var copyText = document.getElementById("share-link-input");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+        navigator.clipboard.writeText(copyText.value);
+        alert("Copied the link: " + copyText.value);
+    }
+</script>
+
+{% endblock %}

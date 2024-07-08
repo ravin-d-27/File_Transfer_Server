@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import secrets
+from django.urls import reverse
 
 class UploadedFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -18,6 +19,9 @@ class UploadedFile(models.Model):
         if not self.unique_token:
             self.unique_token = secrets.token_urlsafe(16)
         super().save(*args, **kwargs)
+        
+    def get_share_url(self):
+        return reverse('files:share_file', kwargs={'unique_token': self.unique_token})
 
     def __str__(self):
         return f"{self.user.username} - {self.file.name}"

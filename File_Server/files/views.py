@@ -99,6 +99,12 @@ def view_file(request, unique_token):
     
 def share_file(request, unique_token):
     file_instance = get_object_or_404(UploadedFile, unique_token=unique_token)
+    share_link = request.build_absolute_uri(file_instance.get_share_url())
+    modified_url = share_link.replace('share_file', 'share_file_2')
+    return render(request, 'files/share_file.html', {'share_link': modified_url})
+
+def share_file_2(request, unique_token):
+    file_instance = get_object_or_404(UploadedFile, unique_token=unique_token)
     file_path = file_instance.file.name
     file_extension = file_path.split('.')[-1].lower()
     if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
@@ -109,4 +115,3 @@ def share_file(request, unique_token):
         return response
     else:
         return redirect('files:download_file', unique_token=unique_token)
-
