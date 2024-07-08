@@ -5,5 +5,5 @@ from .models import UserActivity
 
 @login_required
 def activity_log(request):
-    activities = UserActivity.objects.all().order_by('-timestamp')
+    activities = UserActivity.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'activity/activity_log.html', {'activities': activities})
