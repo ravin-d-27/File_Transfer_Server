@@ -1,4 +1,3 @@
-
 # RMLD File Server
 <div align='center'>
 <img src='File_Server/File_Server/static/logo.png'>
@@ -65,14 +64,20 @@ The application will be accessible at http://localhost:8000/.
 ## Usage
 
 1) Log in to the application.
-2) Upload files using the "Upload" secion.
+2) Upload files using the "Upload" section.
 3) View and manage uploaded files in the "View" section.
 4) Download or delete files as needed.
+
+## Sample Credentials
+
+To experience the RMLD File Server, you can use the following credentials:
+
+- **Username:** sampleuser
+- **Password:** samplesample@8
 
 ## Contributing
 
 Feel free to contribute to this project by opening issues or pull requests. Your feedback and contributions are highly appreciated.
-
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
