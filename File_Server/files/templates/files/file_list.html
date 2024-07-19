@@ -45,7 +45,7 @@
 
     <h1>Your Files and Documents</h1>
     <div class='container'>
-      <b>You have used: {{total_file_size_mb}}MB of your Space</b>
+      <b>You have used: {{total_file_size_mb}} MB of your Space</b>
     </div>
     <br>
     <div class='container'>
@@ -57,7 +57,11 @@
 
     <br>
     <br>
+    <div class='container' align='center'>
+      <p><b>{{ message_zero }}</b><p>
+    </div>
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+
       
       {% for file in files %}
       <div class="col">
@@ -90,6 +94,7 @@
               <a href="{% url 'files:download_file' unique_token=file.unique_token %}" class="btn btn-success" id='download'>Download</a>
               <a href="{% url 'files:view_file' unique_token=file.unique_token %}" class="btn btn-warning" id='view' target="_blank">View</a>
               <a class="btn btn-danger" id='delete' href="{% url 'files:delete_file' unique_token=file.unique_token %}">Delete</a>
+              
           </div>
           </div>
         </div>

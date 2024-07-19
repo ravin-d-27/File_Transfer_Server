@@ -20,7 +20,10 @@ def file_list(request):
     total_file_size_mb = total_file_size_kb / 1024
     total_file_size_mb = round(total_file_size_mb, 2)
     
-    return render(request, 'files/file_list.html', {'files': files, 'total_file_size_mb': total_file_size_mb})
+    if total_file_size_mb==0:    
+        return render(request, 'files/file_list.html', {'files': files, 'total_file_size_mb': total_file_size_mb,'message_zero':"⚠️ You have not uploaded any files ! ⚠️"})
+    else:
+        return render(request, 'files/file_list.html', {'files': files, 'total_file_size_mb': total_file_size_mb})
 
 
 @login_required
@@ -78,7 +81,7 @@ def delete_file(request, unique_token):
     file_instance.delete()
 
     files = UploadedFile.objects.filter(user=request.user)
-    return redirect('files:file_list')
+    return render(request,'files/file_list.html',{'delete_success':"The file {} is Deleted Successfully".format(file_path)})
 
 
 
