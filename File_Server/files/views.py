@@ -10,7 +10,7 @@ from django.db.models import Sum
 
 @login_required
 def file_list(request):
-    files = UploadedFile.objects.filter(user=request.user)
+    files = UploadedFile.objects.filter(user=request.user).order_by('-uploaded_at')
 
     # Calculate total file size for the user
     total_file_size_bytes = sum(file.file.size for file in files)
