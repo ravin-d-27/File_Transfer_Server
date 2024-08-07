@@ -113,6 +113,12 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endif %}
+
+    {% if delete_success %}
+    <div class="container alert alert-success" id="alert-container" role="alert">
+      {{ delete_success }}
+    </div>
+    {% endif %}
   
   </div>
 
