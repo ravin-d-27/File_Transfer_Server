@@ -81,7 +81,7 @@ def delete_file(request, unique_token):
     file_instance.delete()
 
     files = UploadedFile.objects.filter(user=request.user)
-    return render(request,'files/file_list.html',{'delete_success':"The file {} is Deleted Successfully".format(file_path)})
+    return render(request,'accounts/home.html',{'delete_success':"The file {} is Deleted Successfully".format(file_path)})
 
 
 
