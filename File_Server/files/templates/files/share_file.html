@@ -1,31 +1,62 @@
-<!-- templates/files/share_file.html -->
-
 {% extends 'base.html' %}
-{% block content %}
 
-<div class="container">
-    <br><br>
-    <div class="container mx-auto">
-        <h1>Share File</h1>
-        <div class="alert alert-info" role="alert">
-            Copy the link below to share the file:
-            <div class="input-group mt-3">
-                <input type="text" id="share-link-input" class="form-control" value="{{ share_link }}" readonly>
-                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">Copy</button>
-            </div>
+{% block title %}Share File - RMLD File Server{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <h2><i class="fas fa-share-alt"></i> Share File</h2>
+    </div>
+
+    <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <div style="margin-bottom: 15px;">
+            <p><i class="fas fa-info-circle"></i> Copy the link below to share the file:</p>
+        </div>
+        
+        <div style="display: flex; margin-bottom: 10px;">
+            <input type="text" id="share-link-input" value="{{ share_link }}" readonly 
+                style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px 0 0 4px; background-color: #f8f9fa;">
+            <button class="btn btn-primary" type="button" onclick="copyToClipboard()" 
+                style="border-radius: 0 4px 4px 0;">
+                <i class="fas fa-copy"></i> Copy
+            </button>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <p style="color: var(--text-muted); font-size: 14px;">
+                <i class="fas fa-lock"></i> Anyone with this link will be able to access this file.
+            </p>
         </div>
     </div>
-</div>
+    
+    <div id="copy-notification" class="toast">Link copied to clipboard!</div>
+{% endblock %}
 
-<script>
-    function copyToClipboard() {
-        var copyText = document.getElementById("share-link-input");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+{% block extra_js %}
+function copyToClipboard() {
+    var copyText = document.getElementById("share-link-input");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
 
+    try {
         navigator.clipboard.writeText(copyText.value);
-        alert("Copied the link: " + copyText.value);
+        showToast("Link copied to clipboard!", false);
+    } catch (err) {
+        // Fallback for browsers that don't support clipboard API
+        var successful = document.execCommand('copy');
+        if (successful) {
+            showToast("Link copied to clipboard!", false);
+        } else {
+            showToast("Failed to copy link", true);
+        }
     }
-</script>
+}
 
+// Focus the input field when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const linkInput = document.getElementById("share-link-input");
+    if (linkInput) {
+        linkInput.focus();
+        linkInput.select();
+    }
+});
 {% endblock %}

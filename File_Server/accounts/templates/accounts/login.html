@@ -1,54 +1,77 @@
 {% extends 'base.html' %}
 
+{% block title %}Login - RMLD File Server{% endblock %}
+
 {% block content %}
 {% load static %}
-<div class="d-flex flex-column auth justify-content-center">
-  <div class="center text-center">
-  </div>
-
-  <div class="auth-form mt-3">
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-      {{ error }}
+    <div class="header">
+        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
     </div>
-    {% endif %}
+
     {% if not user.is_authenticated %}
-    <h3 class="text-center">Log in to File Server</h3>
-    <br>
-    <div class="containers">
-      <div class="box" align="center">
+        {% if error %}
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
+        {% endif %}
 
-        <form method="POST" action="{% url 'login' %}">
-          <br>
-          {% csrf_token %}
-          <div class="mb-3" align="center">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" name="username" id="username" required>
-          </div>
-          <div class="mb-3" align="center">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" name="password" id="password" required>
-          </div>
-          <div align="center">
-            <button class="btn btn-primary" type="submit">Log in</button>
-          </div>
+        <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); border-radius: 8px; padding: 20px; margin-bottom: 20px; max-width: 450px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="{% static 'logo.png' %}" alt="Logo" style="height: 70px; width: 70px; margin-bottom: 15px;">
+                <h3>Log in to RMLD File Server</h3>
+            </div>
 
-        </form>
-      </div>
-    </div>
-  </div>
-  
-  {% else %}
-  
-  <br>
-  <div class='container'>
-      <div class="alert alert-primary container" role="alert" align='center'>
-          <p>You have already Logged In.</p>
-          <a href="{% url 'home' %}" class="btn btn-success">Go !</a>
-      </div>
-  </div>
-  
-  {% endif %}
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="username" style="display: block; margin-bottom: 8px; font-weight: bold;">
+                        <i class="fas fa-user"></i> Username
+                    </label>
+                    <input type="text" name="username" id="username" required 
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;">
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <label for="password" style="display: block; margin-bottom: 8px; font-weight: bold;">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input type="password" name="password" id="password" required 
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;">
+                </div>
+                
+                <div style="text-align: center; margin-top: 10px;">
+                    <button class="btn btn-primary" type="submit" style="width: 100%; padding: 10px;">
+                        <i class="fas fa-sign-in-alt"></i> Log in
+                    </button>
+                </div>
+            </form>
+        </div>
 
-</div>
+    {% else %}
+        <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <i class="fas fa-check-circle" style="font-size: 48px; color: var(--success-color);"></i>
+                <h3 style="margin-top: 15px;">You're already logged in</h3>
+                <p style="color: var(--text-muted);">Welcome back! You can now access your files and documents.</p>
+            </div>
+            
+            <div>
+                <a href="{% url 'home' %}" class="btn btn-success">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on username field when page loads
+    const usernameField = document.getElementById('username');
+    if (usernameField) {
+        usernameField.focus();
+    }
+});
 {% endblock %}

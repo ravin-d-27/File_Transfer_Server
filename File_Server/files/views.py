@@ -118,3 +118,83 @@ def share_file_2(request, unique_token):
         return response
     else:
         return redirect('files:download_file', unique_token=unique_token)
+
+
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
+from .models import Note
+
+@login_required
+def notes_dashboard(request):
+    """View for the notes dashboard page"""
+    notes = Note.objects.filter(user=request.user).order_by('-updated_at')
+    return render(request, 'files/notes_page.html', {'notes': notes})
+
+@login_required
+@require_POST
+def save_notes(request):
+    """API endpoint to save all notes"""
+    try:
+        data = json.loads(request.body)
+        notes_data = data.get('notes', [])
+        
+        updated_notes = []
+        
+        for note_data in notes_data:
+            note_id = note_data.get('id')
+            title = note_data.get('title', '').strip() or 'Untitled Note'
+            content = note_data.get('content', '')
+            
+            # For existing notes
+            if note_id and not note_id.startswith('new-'):
+                try:
+                    note = Note.objects.get(id=note_id, user=request.user)
+                    note.title = title
+                    note.content = content
+                    note.save()
+                except Note.DoesNotExist:
+                    # Skip if the note doesn't exist or doesn't belong to the user
+                    continue
+            # For new notes
+            else:
+                note = Note.objects.create(
+                    user=request.user,
+                    title=title,
+                    content=content
+                )
+                updated_notes.append({
+                    'old_id': note_id,
+                    'new_id': note.id,
+                    'updated_at': note.updated_at.strftime('%b %d, %Y %H:%M')
+                })
+        
+        return JsonResponse({
+            'success': True,
+            'updated_notes': updated_notes
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+@login_required
+@require_POST
+def delete_note(request, note_id):
+    """API endpoint to delete a note"""
+    try:
+        note = get_object_or_404(Note, id=note_id, user=request.user)
+        note.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)

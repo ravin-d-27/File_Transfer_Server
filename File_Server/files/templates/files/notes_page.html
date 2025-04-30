@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+
+{% block title %}Notes Dashboard{% endblock %}
+
+{% block extra_css %}
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.note-card {
+    background-color: var(--note-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--note-shadow);
+    padding: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.note-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px var(--note-shadow);
+}
+
+.note-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border: none;
+    outline: none;
+    width: 100%;
+    background: transparent;
+}
+
+.note-content {
+    width: 100%;
+    min-height: 150px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+    background: transparent;
+}
+
+.note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.note-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.note-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+}
+
+.note-action-btn:hover {
+    color: var(--primary-color);
+}
+
+.note-action-btn.delete:hover {
+    color: var(--danger-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>My Notes</h1>
+    <button id="add-note-btn" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Note
+    </button>
+</div>
+
+<div id="notes-grid" class="notes-grid">
+    {% if notes %}
+        {% for note in notes %}
+            <div class="note-card" data-id="{{ note.id }}">
+                <input type="text" class="note-title" value="{{ note.title }}" placeholder="Untitled Note">
+                <textarea class="note-content" placeholder="Start typing...">{{ note.content }}</textarea>
+                <div class="note-footer">
+                    <span class="note-date">Updated: {{ note.updated_at|date:"M d, Y H:i" }}</span>
+                    <div class="note-actions">
+                        <button class="note-action-btn delete" title="Delete note">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state" id="empty-state">
+            <i class="fas fa-sticky-note"></i>
+            <h2>No notes yet</h2>
+            <p>Create your first note to get started</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+document.addEventListener('DOMContentLoaded', function() {
+    const notesGrid = document.getElementById('notes-grid');
+    const addNoteBtn = document.getElementById('add-note-btn');
+    const emptyState = document.getElementById('empty-state');
+    let newNoteCount = 0;
+    let pendingChanges = {};
+    let saveTimeout;
+
+    // Event listener for the "Add Note" button
+    addNoteBtn.addEventListener('click', function() {
+        createNewNote();
+    });
+
+    // Create a new note element
+    function createNewNote() {
+        if (emptyState && emptyState.parentNode === notesGrid) {
+            notesGrid.removeChild(emptyState);
+        }
+
+        const newId = `new-${newNoteCount++}`;
+        const noteCard = document.createElement('div');
+        noteCard.className = 'note-card';
+        noteCard.dataset.id = newId;
+        
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleString('default', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        noteCard.innerHTML = `
+            <input type="text" class="note-title" value="Untitled Note" placeholder="Untitled Note">
+            <textarea class="note-content" placeholder="Start typing..."></textarea>
+            <div class="note-footer">
+                <span class="note-date">Updated: ${formattedDate}</span>
+                <div class="note-actions">
+                    <button class="note-action-btn delete" title="Delete note">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        notesGrid.prepend(noteCard);
+
+        // Focus on the title of the new note
+        const titleInput = noteCard.querySelector('.note-title');
+        titleInput.focus();
+        titleInput.select();
+
+        // Initialize event listeners for the new note
+        initializeNoteEventListeners(noteCard);
+
+        // Mark as changed
+        markNoteAsChanged(newId);
+    }
+
+    // Initialize event listeners for a note card
+    function initializeNoteEventListeners(noteCard) {
+        const noteId = noteCard.dataset.id;
+        const titleInput = noteCard.querySelector('.note-title');
+        const contentTextarea = noteCard.querySelector('.note-content');
+        const deleteBtn = noteCard.querySelector('.note-action-btn.delete');
+
+        // Event listeners for input fields
+        titleInput.addEventListener('input', () => markNoteAsChanged(noteId));
+        contentTextarea.addEventListener('input', () => markNoteAsChanged(noteId));
+
+        // Event listener for delete button
+        deleteBtn.addEventListener('click', () => deleteNote(noteCard));
+
+        // Auto-resize textarea
+        contentTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+
+    // Mark a note as changed and schedule a save
+    function markNoteAsChanged(noteId) {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveAllNotes, 1000); // Save after 1 second of inactivity
+    }
+
+    // Save all notes
+    function saveAllNotes() {
+        const notes = [];
+        const noteCards = document.querySelectorAll('.note-card');
+        
+        noteCards.forEach(noteCard => {
+            const noteId = noteCard.dataset.id;
+            const title = noteCard.querySelector('.note-title').value;
+            const content = noteCard.querySelector('.note-content').value;
+            
+            notes.push({
+                id: noteId,
+                title: title,
+                content: content
+            });
+        });
+
+        const csrfToken = '{{ csrf_token }}';
+        
+        fetch('{% url "save_notes" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ notes: notes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Notes saved successfully!');
+                
+                // Update IDs of new notes
+                if (data.updated_notes && data.updated_notes.length > 0) {
+                    data.updated_notes.forEach(update => {
+                        const noteCard = document.querySelector(`.note-card[data-id="${update.old_id}"]`);
+                        if (noteCard) {
+                            noteCard.dataset.id = update.new_id;
+                            const dateSpan = noteCard.querySelector('.note-date');
+                            if (dateSpan) {
+                                dateSpan.textContent = `Updated: ${update.updated_at}`;
+                            }
+                        }
+                    });
+                }
+            } else {
+                showToast('Error saving notes!', true);
+                console.error('Error saving notes:', data.message);
+            }
+        })
+        .catch(error => {
+            showToast('Error saving notes!', true);
+            console.error('Error saving notes:', error);
+        });
+    }
+
+    // Delete a note
+    function deleteNote(noteCard) {
+        const noteId = noteCard.dataset.id;
+        
+        // If it's a new note that hasn't been saved yet
+        if (noteId.startsWith('new-')) {
+            notesGrid.removeChild(noteCard);
+            checkEmptyState();
+            return;
+        }
+
+        const csrfToken = '{{ csrf_token }}';
+        
+        fetch(`/${noteId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                notesGrid.removeChild(noteCard);
+                checkEmptyState();
+                showToast('Note deleted successfully!');
+            } else {
+                showToast('Error deleting note!', true);
+                console.error('Error deleting note:', data.message);
+            }
+        })
+        .catch(error => {
+            showToast('Error deleting note!', true);
+            console.error('Error deleting note:', error);
+        });
+    }
+
+    // Check if we need to show the empty state
+    function checkEmptyState() {
+        if (notesGrid.childElementCount === 0) {
+            const emptyStateDiv = document.createElement('div');
+            emptyStateDiv.id = 'empty-state';
+            emptyStateDiv.className = 'empty-state';
+            emptyStateDiv.innerHTML = `
+                <i class="fas fa-sticky-note"></i>
+                <h2>No notes yet</h2>
+                <p>Create your first note to get started</p>
+            `;
+            notesGrid.appendChild(emptyStateDiv);
+        }
+    }
+
+    // Initialize existing notes
+    document.querySelectorAll('.note-card').forEach(noteCard => {
+        initializeNoteEventListeners(noteCard);
+    });
+});
+{% endblock %}

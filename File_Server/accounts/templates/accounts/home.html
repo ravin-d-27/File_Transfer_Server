@@ -1,26 +1,68 @@
 {% extends "base.html" %}
+
+{% block title %}RMLD File Server - Secure Cloud Storage{% endblock %}
+
 {% block content %}
 {% load static %}
 
-<div class="px-4 py-2 my-3 text-center">
-    <br><br><br><br>
-    <div class="text-center">
-      <img class="rounded-circle mx-auto mb-4" src="{% static 'logo.png' %}" alt="" width="200" height="200">
+<div style="padding: 40px 0; text-align: center;">
+    <div style="margin-bottom: 30px;">
+        <img src="{% static 'logo.png' %}" alt="RMLD File Server Logo" width="180" height="180" 
+             style="border-radius: 50%; box-shadow: 0 4px 10px var(--note-shadow);">
     </div>
-    <h1 class="display-5 fw-bold">Welcome to RMLD File Server</h1>
-    <div class="col-lg-6 mx-auto">
-      <p class="lead mb-4">You can upload your files over cloud and this website stores the uploaded files on Amazon S3 Buckets. You can access download those files anywhere in the Internet. If you don't want it, then delete the file, as simple as that!</p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        {% if user.is_authenticated %}
-        <a type="button" class="btn btn-primary btn-lg px-4 gap-3" href='{% url "files:upload_file" %}'>Upload my Files</a>
-        <a type="button" class="btn btn-outline-secondary btn-lg px-4" href='{% url "files:file_list" %}'>View My Files</a>
-        {% else %}
-        <a type="button" class="btn btn-primary btn-lg px-4 gap-3" href="{% url 'login' %}">Upload my Files</a>
-        <a type="button" class="btn btn-outline-secondary btn-lg px-4" href="{% url 'login' %}">View my Files</a>
-        {% endif %}
-      </div>
+    
+    <h1 style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 20px;">
+        Welcome to RMLD File Server
+    </h1>
+    
+    <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 30px;">
+        Upload your files to the cloud and let RMLD File Server securely store them using Amazon S3. 
+        Access them anywhere on the Internet, and delete them when you no longer need them—it's that simple!
+    </p>
+    
+    <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); 
+                            border-radius: 8px; padding: 30px; margin: 0 auto 30px; max-width: 800px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+            {% if user.is_authenticated %}
+                <a href="{% url 'files:upload_file' %}" class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem;">
+                    <i class="fas fa-upload"></i> Upload My Files
+                </a>
+                <a href="{% url 'files:file_list' %}" class="btn btn-success" style="padding: 12px 24px; font-size: 1.1rem;">
+                    <i class="fas fa-folder-open"></i> View My Files
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem;">
+                    <i class="fas fa-sticky-note"></i> My Notes
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary" style="padding: 12px 24px; font-size: 1.1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login to Get Started
+                </a>
+            {% endif %}
+        </div>
     </div>
-  </div>
-
+    
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; max-width: 1000px; margin: 0 auto;">
+        <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); 
+                               border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
+            <i class="fas fa-lock" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px; color: var(--text-color);">Secure Storage</h3>
+            <p style="color: var(--text-muted);">Your files are encrypted and stored securely in Amazon S3.</p>
+        </div>
+        
+        <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); 
+                               border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
+            <i class="fas fa-share-alt" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px; color: var(--text-color);">Easy Sharing</h3>
+            <p style="color: var(--text-muted);">Share your files with colleagues with just a click.</p>
+        </div>
+        
+        <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); 
+                               border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
+            <i class="fas fa-mobile-alt" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px; color: var(--text-color);">Access Anywhere</h3>
+            <p style="color: var(--text-muted);">Access your files from any device, anywhere, anytime.</p>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

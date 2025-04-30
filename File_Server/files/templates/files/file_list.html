@@ -1,145 +1,610 @@
-
-
 {% extends 'base.html' %}
+{% block title %}Your Files - RMLD File Server{% endblock %}
 {% block content %}
-{% load static%}
+{% load static %}
+
+<div class="file-manager">
+  <div class="file-manager-header">
+    <div class="file-manager-title">
+      <h1><i class="fas fa-folder-open"></i> Your Files</h1>
+      <p class="storage-info">
+        <span class="storage-used">
+          <i class="fas fa-database"></i> Storage used: <strong>{{total_file_size_mb}} MB</strong>
+        </span>
+        {% if user.username == "sampleuser" %}
+        <span class="storage-limit">
+          <i class="fas fa-exclamation-circle"></i> Limited to 5MB for demo purposes
+        </span>
+        {% endif %}
+      </p>
+    </div>
+    <div class="file-manager-actions">
+      <div class="search-container">
+        <input type="text" id="file-search" name="file-search" class="search-input" placeholder="Search files...">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+      <a href="{% url 'files:upload_file' %}" class="btn btn-primary">
+        <i class="fas fa-cloud-upload-alt"></i> Upload New File
+      </a>
+    </div>
+  </div>
+
+  {% if done %}
+  <div class="alert alert-success fade-out" role="alert">
+    <i class="fas fa-check-circle"></i> {{ done }}
+    <button type="button" class="btn-close" onclick="this.parentElement.style.display='none';">&times;</button>
+  </div>
+  {% endif %}
+
+  {% if delete_success %}
+  <div class="alert alert-success fade-out" role="alert">
+    <i class="fas fa-check-circle"></i> {{ delete_success }}
+    <button type="button" class="btn-close" onclick="this.parentElement.style.display='none';">&times;</button>
+  </div>
+  {% endif %}
+
+  {% if files %}
+  <div class="file-grid">
+    {% for file in files %}
+    <div class="file-card" data-filename="{{ file.file.name|slice:"8:"|lower }}">
+      <div class="file-card-header">
+        <h3 class="file-name">{{ file.file.name|slice:"8:" }}</h3>
+        <span class="file-type-badge">
+          {% if file.file.name|lower|slice:"-4:" == '.jpg' or file.file.name|lower|slice:"-5:" == '.jpeg' or file.file.name|lower|slice:"-4:" == '.png' or file.file.name|lower|slice:"-4:" == '.gif' %}
+            <i class="fas fa-image"></i> Image
+          {% elif file.file.name|lower|slice:"-4:" == '.pdf' %}
+            <i class="fas fa-file-pdf"></i> PDF
+          {% elif file.file.name|lower|slice:"-4:" == '.doc' or file.file.name|lower|slice:"-5:" == '.docx' %}
+            <i class="fas fa-file-word"></i> Document
+          {% elif file.file.name|lower|slice:"-4:" == '.xls' or file.file.name|lower|slice:"-5:" == '.xlsx' %}
+            <i class="fas fa-file-excel"></i> Spreadsheet
+          {% elif file.file.name|lower|slice:"-4:" == '.txt' %}
+            <i class="fas fa-file-alt"></i> Text
+          {% else %}
+            <i class="fas fa-file"></i> File
+          {% endif %}
+        </span>
+      </div>
+      
+      <div class="file-preview-container">
+        {% if file.file.name|lower|slice:"-4:" == '.jpg' or file.file.name|lower|slice:"-5:" == '.jpeg' or file.file.name|lower|slice:"-4:" == '.png' or file.file.name|lower|slice:"-4:" == '.gif' %}
+          <img src="{{ file.file.url }}" alt="Image preview" class="file-preview image-preview">
+        {% elif file.file.name|lower|slice:"-4:" == '.pdf' %}
+          <div class="file-preview pdf-preview">
+            <iframe src="{{ file.file.url }}" title="PDF preview"></iframe>
+          </div>
+        {% else %}
+          <div class="file-preview generic-preview">
+            <i class="file-icon 
+              {% if file.file.name|lower|slice:"-4:" == '.doc' or file.file.name|lower|slice:"-5:" == '.docx' %}
+                fas fa-file-word
+              {% elif file.file.name|lower|slice:"-4:" == '.xls' or file.file.name|lower|slice:"-5:" == '.xlsx' %}
+                fas fa-file-excel
+              {% elif file.file.name|lower|slice:"-4:" == '.ppt' or file.file.name|lower|slice:"-5:" == '.pptx' %}
+                fas fa-file-powerpoint
+              {% elif file.file.name|lower|slice:"-4:" == '.zip' or file.file.name|lower|slice:"-4:" == '.rar' %}
+                fas fa-file-archive
+              {% elif file.file.name|lower|slice:"-4:" == '.txt' %}
+                fas fa-file-alt
+              {% elif file.file.name|lower|slice:"-5:" == '.html' or file.file.name|lower|slice:"-4:" == '.css' or file.file.name|lower|slice:"-3:" == '.js' %}
+                fas fa-file-code
+              {% else %}
+                fas fa-file
+              {% endif %}
+            "></i>
+            <p class="no-preview-text">{{ file.file.name|slice:"-4:" }} file</p>
+          </div>
+        {% endif %}
+      </div>
+      
+      <div class="file-info">
+        <div class="file-meta">
+          <p><i class="fas fa-clock"></i> <span class="meta-label">Uploaded:</span> {{ file.uploaded_at|date:"M d, Y" }}</p>
+          <p><i class="fas fa-user"></i> <span class="meta-label">By:</span> {{ file.user.username }}</p>
+          {% if file.notes %}
+          <p class="file-notes"><i class="fas fa-sticky-note"></i> <span class="meta-label">Note:</span> {{ file.notes }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="file-actions">
+          <a href="{% url 'files:share_file' unique_token=file.unique_token %}" class="file-action share-btn" title="Share Link">
+            <i class="fas fa-share-alt"></i> Share
+          </a>
+          <a href="{% url 'files:download_file' unique_token=file.unique_token %}" class="file-action download-btn" title="Download File">
+            <i class="fas fa-download"></i> Download
+          </a>
+          <a href="{% url 'files:view_file' unique_token=file.unique_token %}" class="file-action view-btn" target="_blank" title="View File">
+            <i class="fas fa-eye"></i> View
+          </a>
+          <button class="file-action delete-btn" onclick="confirmDelete('{{ file.unique_token }}')" title="Delete File">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="no-files-container">
+    <div class="no-files-message">
+      <i class="fas fa-folder-open fa-4x"></i>
+      <h2>No files found</h2>
+      <p>{{ message_zero }}</p>
+      <a href="{% url 'files:upload_file' %}" class="btn btn-primary">
+        <i class="fas fa-cloud-upload-alt"></i> Upload Your First File
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div id="confirm-delete-modal" class="modal">
+  <div class="modal-content">
+    <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+    <p>Are you sure you want to delete this file? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+      <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <style>
-  .small-search-bar {
-    width: 250px;
+  /* File Manager Styles */
+  .file-manager {
+    margin: 20px 0;
+    background-color: var(--note-bg);
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+  }
+
+  .file-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .file-manager-title h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .storage-info {
+    display: flex;
+    gap: 15px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .storage-used {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .storage-limit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--warning-color);
+  }
+
+  .file-manager-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Search Container */
+  .search-container {
+    position: relative;
+    min-width: 250px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 10px rgba(74, 111, 165, 0.15);
+    outline: none;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+  }
+
+  /* File Grid */
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  /* File Card */
+  .file-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--border-color);
+  }
+
+  .file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .file-card-header {
+    padding: 15px;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .file-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    word-break: break-word;
+    padding-right: 80px;
+  }
+
+  .file-type-badge {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* File Preview */
+  .file-preview-container {
+    height: 200px;
+    position: relative;
+    background-color: #f5f5f5;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .file-preview {
-    max-width: 100%;
-    max-height: 200px; /* Adjust the maximum height as needed */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .card {
+  .image-preview {
+    object-fit: contain;
+    background-color: #f0f0f0;
+    padding: 10px;
+  }
+
+  .pdf-preview iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .generic-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f8f8;
+    color: var(--primary-color);
+  }
+
+  .file-icon {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  .no-preview-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* File Info */
+  .file-info {
+    padding: 15px;
     display: flex;
     flex-direction: column;
     height: 100%;
   }
 
-  .card-body {
+  .file-meta {
     flex-grow: 1;
+    margin-bottom: 15px;
+  }
+
+  .file-meta p {
+    margin: 5px 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .meta-label {
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .file-notes {
+    border-left: 3px solid var(--secondary-color);
+    padding-left: 10px;
+    margin-top: 10px;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+
+  /* File Actions */
+  .file-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .file-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .share-btn {
+    background-color: #e2e8f0;
+    color: #4a5568;
+  }
+
+  .share-btn:hover {
+    background-color: #cbd5e0;
+  }
+
+  .download-btn {
+    background-color: #d1fae5;
+    color: #047857;
+  }
+
+  .download-btn:hover {
+    background-color: #a7f3d0;
+  }
+
+  .view-btn {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+
+  .view-btn:hover {
+    background-color: #fde68a;
+  }
+
+  .delete-btn {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: none;
+  }
+
+  .delete-btn:hover {
+    background-color: #fecaca;
+  }
+
+  /* No Files Message */
+  .no-files-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
+
+  .no-files-message {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px;
+  }
+
+  .no-files-message i {
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .no-files-message h2 {
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .no-files-message p {
+    margin-bottom: 20px;
+  }
+
+  /* Alert Styles */
+  .alert {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fade-out {
+    animation: fadeOut 0.5s ease 4s forwards;
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; display: none; }
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  .modal-content h3 {
+    margin-bottom: 15px;
+    color: var(--danger-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .modal-content p {
+    margin-bottom: 25px;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .file-manager-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .file-manager-actions {
+      width: 100%;
+    }
+
+    .search-container {
+      width: 100%;
+    }
+
+    .file-actions {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 
-<div class='container'>
-  <br><br>
-  <div class='container'>
-
-    {% if done %}
-    <div class="container alert alert-success" id="alert-container" role="alert">
-      {{ done }}
-    </div>
-    {% endif %}
-
-    <h1>Your Files and Documents</h1>
-    <div class='container'>
-      <b>You have used: {{total_file_size_mb}} MB of your Space</b>
-    </div>
-    <br>
-    <div class='container'>
-      <form id="file-search-form">
-        <label for="file-search">Search files:</label>
-        <input type="text" id="file-search" name="file-search" class="form-control small-search-bar" placeholder="Enter your file name here: ">
-      </form>
-    </div>
-
-    <br>
-    <br>
-    <div class='container' align='center'>
-      <p><b>{{ message_zero }}</b><p>
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-
-      
-      {% for file in files %}
-      <div class="col">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header py-3 bg-secondary text-white">
-            <h4 class="my-0 fw-normal"><b>{{ file.file.name|slice:"8:" }}</b></h4>
-          </div>
-          <div class="card-body d-flex flex-column">
-            {% if file.file.name|lower|slice:"-4:" == '.jpg' or file.file.name|lower|slice:"-5:" == '.jpeg' or file.file.name|lower|slice:"-4:" == '.png' or file.file.name|lower|slice:"-4:" == '.gif' %}
-              <!-- Display image preview -->
-              <img src="{{ file.file.url }}" alt="Image preview" class="img-fluid file-preview mb-3" style="max-height: 200px; object-fit: cover;">
-            {% elif file.file.name|lower|slice:"-4:" == '.pdf' %}
-              <!-- Display PDF preview using iframe -->
-              <iframe src="{{ file.file.url }}" width="100%" height="200" class="mb-3"></iframe>
-            {% else %}
-            <div class="d-flex justify-content-center align-items-center mb-3" style="height: 200px;">
-              <img alt="svgImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KPGcgaWQ9Il94MzJfMF9EaXJlY3RvcnlfT2ZmaWNlX0ZvbGRlcl9GaWxlX1BhcGVyIj48cGF0aCBmaWxsPSIjZmFlZmRlIiBkPSJNNTcsNTVINmMtMS43LDAtMy0xLjMtMy0zVjE0YzAtMS43LDEuMy0zLDMtM2gxNWw5LDZoMjRjMS43LDAsMywxLjMsMywzVjU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNmZmY3ZjAiIGQ9Ik02LDExaDE2bDcsN0gzdi00QzMsMTIuMyw0LjMsMTEsNiwxMXoiPjwvcGF0aD48cGF0aCBmaWxsPSIjY2RhMWE3IiBkPSJNNjAsNTVoLTNWMjFoNGMxLjEsMCwyLDAuOSwyLDJ2MjlDNjMsNTMuNyw2MS43LDU1LDYwLDU1eiI+PC9wYXRoPjxwYXRoIGZpbGw9IiNlZmQ4YmUiIGQ9Ik01Nyw1NUg2Yy0xLjcsMC0zLTEuMy0zLTN2LTdoNTRWNTV6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2Y3NWY4MyIgZD0iTTMxIDI0aC02Yy0uNiAwLTEgLjQtMSAxcy40IDEgMSAxaDZjLjYgMCAxLS40IDEtMVMzMS42IDI0IDMxIDI0ek0xMSAyNmgxMGMuNiAwIDEtLjQgMS0xcy0uNC0xLTEtMUgxMWMtLjYgMC0xIC40LTEgMVMxMC40IDI2IDExIDI2ek0xNSAyOGgtNGMtLjYgMC0xIC40LTEgMXMuNCAxIDEgMWg0Yy42IDAgMS0uNCAxLTFTMTUuNiAyOCAxNSAyOHpNMjYgMjhoLTdjLS42IDAtMSAuNC0xIDFzLjQgMSAxIDFoN2MuNiAwIDEtLjQgMS0xUzI2LjYgMjggMjYgMjh6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTUzLDQ0aC00Yy0wLjYsMC0xLDAuNC0xLDFzMC40LDEsMSwxaDRjMC42LDAsMS0wLjQsMS0xUzUzLjYsNDQsNTMsNDR6Ij48L3BhdGg+PHBhdGggZmlsbD0iIzhkNmM5ZiIgZD0iTTYxLDIwaC0zdi0xYzAtMS43LTEuMy0zLTMtM0gyOS43Yy0wLjgsMC0xLjUtMC4zLTIuMS0wLjlsLTMuNy0zLjdjLTAuOS0wLjktMi4yLTEuNC0zLjUtMS40SDUgYy0xLjcsMC0zLDEuMy0zLDN2MzljMCwyLjIsMS44LDQsNCw0aDUzaDFjMi4yLDAsNC0xLjgsNC00VjIzQzY0LDIxLjMsNjIuNywyMCw2MSwyMHogTTYsNTRjLTEuMSwwLTItMC45LTItMnYtNmg0MSBjMC42LDAsMS0wLjQsMS0xcy0wLjQtMS0xLTFINFYxM2MwLTAuNiwwLjQtMSwxLTFoMTUuNGMwLjgsMCwxLjUsMC4zLDIuMSwwLjlsMy43LDMuN2MwLjksMC45LDIuMiwxLjQsMy41LDEuNEg1NSBjMC42LDAsMSwwLjQsMSwxdjMzYzAsMC42LDAuMiwxLjMsMC42LDJINnogTTYyLDUyYzAsMS4xLTAuOSwyLTIsMmMtMS4yLDAtMi0xLjQtMi0yVjIyaDNjMC42LDAsMSwwLjQsMSwxVjUyeiI+PC9wYXRoPjxwYXRoIGZpbGw9IiM4ZDZjOWYiIGQ9Ik03IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzggNDguNCA3LjYgNDggNyA0OHpNMTIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMTMgNDguNCAxMi42IDQ4IDEyIDQ4ek0xNyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMxOCA0OC40IDE3LjYgNDggMTcgNDh6TTIyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzIzIDQ4LjQgMjIuNiA0OCAyMiA0OHpNMjcgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDMjggNDguNCAyNy42IDQ4IDI3IDQ4ek0zMiA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkMzMyA0OC40IDMyLjYgNDggMzIgNDh6TTM3IDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzM4IDQ4LjQgMzcuNiA0OCAzNyA0OHpNNDIgNDhjLS42IDAtMSAuNC0xIDF2MmMwIC42LjQgMSAxIDFzMS0uNCAxLTF2LTJDNDMgNDguNCA0Mi42IDQ4IDQyIDQ4ek00NyA0OGMtLjYgMC0xIC40LTEgMXYyYzAgLjYuNCAxIDEgMXMxLS40IDEtMXYtMkM0OCA0OC40IDQ3LjYgNDggNDcgNDh6TTUyIDQ4Yy0uNiAwLTEgLjQtMSAxdjJjMCAuNi40IDEgMSAxczEtLjQgMS0xdi0yQzUzIDQ4LjQgNTIuNiA0OCA1MiA0OHoiPjwvcGF0aD48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjYsMzljMCwwLjYsMC40LDEsMSwxczEtMC40LDEtMVYxOGMwLTAuNi0wLjQtMS0xLTFzLTEsMC40LTEsMXYyME0yNiAzOS42Yy0wLjQsMC0wLjgtMC4yLTEtMC42TDIzLjksMzZsLTIuMSwwLjdjLTAuNSwwLjItMS4xLTAuMS0xLjMtMC43czAuMS0xLjEsMC43LTEuM2wzLTJjMC40LTAuMywxLTAuMywxLjQsMGwzLDJjMC41LDAuMiwwLjgsMC43LDAuNiAxLjNTMjYuMSAzOS42IDI2IDM5LjZ6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI2LDE1LjNjMCwwLjYsMC40LDEsMSwxczEtMC40LDEtMXY1YzAsMC42LTAuNCwxLTEsMXMtMS0wLjQtMS0xVjE1LjN6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI2LDM5LjZjLTAuNCwwLTAuOC0wLjItMS0wLjZsLTIuMS0yLjJjLTAuMy0wLjQtMC4zLTEsMC0xLjRsMi45LTVoM2wyLjksNWMyLDAuNCwwLjMsMSwwLDEuNGwtMi4xLDIuMkMyNi4zLDM5LjQsMjYuMSwzOS42LDI2LDM5LjZ6Ij48L3BhdGg+PC9nPjwvc3ZnPg=="/>
-            </div>
-            <p><b>Cannot preview this format. Please download and view it</b></p>
-            {% endif %}
-
-            <ul class="list-unstyled mt-3 mb-4">
-              <li><b>Uploaded at: </b>{{ file.uploaded_at }}</li>
-              <li><b>Uploaded by: </b>{{ file.user.username }}</li>
-              <li><b>Note: </b>{{ file.notes }}</li>
-            </ul>
-          
-            <div>
-              <a href="{% url 'files:share_file' unique_token=file.unique_token %}" class="btn btn-primary" id='view' target="_blank">Share Link</a>
-              <a href="{% url 'files:download_file' unique_token=file.unique_token %}" class="btn btn-success" id='download'>Download</a>
-              <a href="{% url 'files:view_file' unique_token=file.unique_token %}" class="btn btn-warning" id='view' target="_blank">View</a>
-              <a class="btn btn-danger" id='delete' href="{% url 'files:delete_file' unique_token=file.unique_token %}">Delete</a>
-              
-          </div>
-          </div>
-        </div>
-      </div>
-
-      <script>
-        function raise_alerts(file_id) {
-          yes = confirm("Are you sure you want to delete this file?");
-  
-          if (yes == true) {
-              // Replace 'file.id' with the actual value of the file_id variable
-              window.location.replace("{% url 'files:delete_file' unique_token='" + file_id + "' %}");
-
-              alert("File deleted successfully");
-          } else {
-              alert("File not deleted");
-          }
-      }
-      </script>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-
 <script>
-  // Get the input element and the list items
-  var input = document.getElementById("file-search");
-  var items = document.getElementsByClassName("col");  // Assuming "col" is the class of your list items
+  // Search functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('file-search');
+    const fileCards = document.querySelectorAll('.file-card');
+    
+    searchInput.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      
+      fileCards.forEach(card => {
+        const fileName = card.getAttribute('data-filename');
+        const fileContent = card.textContent.toLowerCase();
+        
+        if (fileName.includes(query) || fileContent.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
 
-  // Add an event listener to the input field
-  input.addEventListener("input", function() {
-    // Get the search query
-    var query = input.value.toLowerCase();
+  // Delete confirmation modal
+  let fileToDelete = null;
+  const modal = document.getElementById('confirm-delete-modal');
+  const confirmBtn = document.getElementById('confirm-delete-btn');
+  const cancelBtn = document.getElementById('cancel-delete-btn');
 
-    // Loop through each item and hide/show based on the search query
-    for (var i = 0; i < items.length; i++) {
-      var itemName = items[i].textContent.toLowerCase();
-      if (itemName.includes(query)) {
-        items[i].style.display = "block";
-      } else {
-        items[i].style.display = "none";
-      }
+  function confirmDelete(fileToken) {
+    fileToDelete = fileToken;
+    modal.style.display = 'flex';
+  }
+
+  confirmBtn.addEventListener('click', function() {
+    if (fileToDelete) {
+      window.location.href = `{% url 'files:delete_file' unique_token='TOKEN' %}`.replace('TOKEN', fileToDelete);
+    }
+    modal.style.display = 'none';
+  });
+
+  cancelBtn.addEventListener('click', function() {
+    modal.style.display = 'none';
+    fileToDelete = null;
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener('click', function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+      fileToDelete = null;
     }
   });
-</script>
 
-<script>
-  setTimeout(function() {
-    document.getElementById('alert-container').style.display = 'none';
-  }, 4000);
+  // Auto-hide alerts
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        alert.style.display = 'none';
+      });
+    }, 5000);
+  });
 </script>
-
 {% endblock %}

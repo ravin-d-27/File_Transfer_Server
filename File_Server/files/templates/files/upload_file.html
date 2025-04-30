@@ -1,47 +1,72 @@
-<!-- files/templates/files/upload_file.html -->
-
 {% extends 'base.html' %}
 
+{% block title %}Upload File - RMLD File Server{% endblock %}
+
 {% block content %}
-  <div class="container">
-    <br><br>
-    <div class="container mx-auto">
-
-      <h1>Upload your file to RMLD File Server</h1>
-      <br>
-
-      <div class="row row-cols-1 row-cols-md-2 mb-3 mx-auto text-center">
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <form method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              <div class="card-header py-3">
-                <h4>Select your File</h4>
-              </div>
-              <div class="card-body">
-                <div class="mb-3">
-                  <label for="id_file" class="form-label">Choose a file:</label>
-                  {{ form.file }}
-                </div>
-
-                <div class="mb-3">
-                  <label for="id_notes" class="form-label">Notes (optional):</label>
-                  {{ form.notes }}
-                </div>
-
-                {% if error %}
-                  <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                  </div>
-                {% endif %}
-
-                <button type="submit" class="btn btn-success">Upload</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
+    <div class="header">
+        <h2><i class="fas fa-upload"></i> Upload File</h2>
     </div>
-  </div>
+
+    <div class="card" style="background-color: var(--note-bg); box-shadow: 0 2px 4px var(--note-shadow); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 20px;">
+                <label for="id_file" style="display: block; margin-bottom: 8px; font-weight: bold;">
+                    <i class="fas fa-file"></i> Select File:
+                </label>
+                {{ form.file }}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="id_notes" style="display: block; margin-bottom: 8px; font-weight: bold;">
+                    <i class="fas fa-sticky-note"></i> Notes (optional):
+                </label>
+                {{ form.notes }}
+                <small style="color: var(--text-muted); display: block; margin-top: 5px;">Add any comments or information about this file</small>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-warning" role="alert" style="margin-bottom: 20px;">
+                    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                    <button type="button" class="btn-close" onclick="this.parentElement.style.display='none';">&times;</button>
+                </div>
+            {% endif %}
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-upload"></i> Upload File
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="alert alert-warning" style="margin-top: 20px;">
+        <i class="fas fa-info-circle"></i> <strong>Note:</strong> Maximum file size is determined by your account type.
+        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('id_file');
+    if (fileInput) {
+        fileInput.classList.add('form-control');
+        fileInput.style.padding = '10px';
+        fileInput.style.border = '1px solid var(--border-color)';
+        fileInput.style.borderRadius = '4px';
+        fileInput.style.width = '100%';
+    }
+    
+    const notesInput = document.getElementById('id_notes');
+    if (notesInput) {
+        notesInput.classList.add('form-control');
+        notesInput.style.padding = '10px';
+        notesInput.style.border = '1px solid var(--border-color)';
+        notesInput.style.borderRadius = '4px';
+        notesInput.style.width = '100%';
+        notesInput.style.minHeight = '100px';
+        notesInput.style.resize = 'vertical';
+    }
+});
 {% endblock %}
